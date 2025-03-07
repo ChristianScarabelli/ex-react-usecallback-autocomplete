@@ -48,6 +48,21 @@ function App() {
     debounce(fetchProducts, 500)
     , [])
 
+  // Funzione per fetchare i dettagli del prodotto
+  const fetchProductDetails = async (id) => {
+    try {
+      const response = await fetch(`https://boolean-spec-frontend.vercel.app/freetestapi/products/${id}`)
+      const product = await response.json()
+      console.log(product)
+      setProducts([])
+      setQuery('')
+    }
+    catch (err) {
+      console.error(err.message)
+      setErrorMessage('Failed to fetch product details')
+      throw new Error(err.message)
+    }
+  }
 
   useEffect(() => {
     // sostituisco il normale fetch 'fetchProducts(query)'
@@ -78,7 +93,14 @@ function App() {
             {products.length > 0 && (
               <ul className="bg-white shadow-md rounded-md mt-1 p-2 absolute w-full max-h-48 overflow-y-auto">
                 {products.map((product) => (
-                  <li key={product.id} className="text-sm p-2 border-b last:border-b-0">
+                  <li
+                    onClick={() => fetchProductDetails(product.id)}
+                    key={product.id}
+                    className="flex items-center justify-start gap-2 text-sm p-2 border-b last:border-b-0 cursor-pointer hover:text-blue-800 hover:font-bold">
+                    <button><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                    </svg>
+                    </button>
                     <strong>{product.name}</strong>
                   </li>
                 ))}
