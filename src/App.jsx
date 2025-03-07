@@ -1,6 +1,16 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+import Card from './components/Card.jsx'
 
-
+// Funzione di debounce
+function debounce(callback, delay) {
+  let timer
+  return (value) => {
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+      callback(value)
+    }, delay)
+  }
+}
 function App() {
 
   // Stato per la ricerca
@@ -13,10 +23,17 @@ function App() {
 
   // Funzione per cercare i prodotti
   const fetchProducts = async (query) => {
+
+    // Controllo se la query è vuota
+    if (!query.trim()) {
+      setProducts([])
+      return
+    }
+
     try {
       const response = await fetch(`https://boolean-spec-frontend.vercel.app/freetestapi/products?search=${query}`)
       const products = await response.json()
-      console.log(products)
+      console.log('Test API')
       setProducts(products)
     }
     catch (err) {
@@ -26,13 +43,17 @@ function App() {
     }
   }
 
+  // Creo la ricerca debounced-ata
+  const debouncedFetchProducts = useCallback(
+    debounce(fetchProducts, 500)
+    , [])
+
+
   useEffect(() => {
-    if (query) {
-      fetchProducts(query)
-    } else {
-      setProducts([])
-      setErrorMessage('')
-    }
+    // sostituisco il normale fetch 'fetchProducts(query)'
+    //  con la funzione debounced-ata
+    debouncedFetchProducts(query)
+    setErrorMessage('')
   }, [query])
 
   return (
@@ -47,9 +68,9 @@ function App() {
               placeholder="Search products..."
               value={query}
               onChange={(e) => {
-                const newQuery = e.target.value    // Variabile per il target
-                if (newQuery.length < query.length) {   // se il target è più corto dalla query
-                  setProducts([]) // Chiudo il menu quando viene cancellato un carattere
+                const newQuery = e.target.value
+                if (newQuery.length < query.length) {   // se il nuovo target è più corto dalla query
+                  setProducts([]) // Chiudo il menu (quando viene cancellato un carattere)
                 }
                 setQuery(newQuery)
               }}
