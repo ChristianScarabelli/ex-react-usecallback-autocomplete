@@ -19,7 +19,8 @@ function App() {
   const [products, setProducts] = useState([])
   // Stato per messaggio di errore
   const [errorMessage, setErrorMessage] = useState('')
-
+  // Stato per i dettagli prodotto
+  const [productDetails, setProductDetails] = useState([])
 
   // Funzione per cercare i prodotti
   const fetchProducts = async (query) => {
@@ -54,6 +55,7 @@ function App() {
       const response = await fetch(`https://boolean-spec-frontend.vercel.app/freetestapi/products/${id}`)
       const product = await response.json()
       console.log(product)
+      setProductDetails([product])  // Riempio l'array vuoto dello state com il product
       setProducts([])
       setQuery('')
     }
@@ -109,9 +111,15 @@ function App() {
           </div>
         </div>
       </header>
-      <main className="min-h-screen bg-emerald-200">
-        {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-
+      <main className="min-h-screen bg-emerald-200 ">
+        <div className="container mx-auto grid grid-cols-auto">
+          {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+          {productDetails && productDetails.length > 0 &&
+            productDetails.map(p => {
+              return <Card key={p.id} data={p} />
+            })
+          }
+        </div>
       </main>
     </>
   )
